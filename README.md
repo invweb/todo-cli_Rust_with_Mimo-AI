@@ -1,6 +1,12 @@
 # todo-cli
 
-A simple command-line task manager written in Rust.
+A simple cross-platform command-line task manager written in Rust.
+
+## Features
+
+- Works on macOS, Linux, and Windows
+- Simple and intuitive CLI interface
+- Persistent storage in `~/.todo.json`
 
 ## Commands
 

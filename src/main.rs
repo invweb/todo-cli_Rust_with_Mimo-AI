@@ -11,9 +11,7 @@ struct Task {
 }
 
 fn data_path() -> PathBuf {
-    let mut path = env::var("HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| PathBuf::from("."));
+    let mut path = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
     path.push(".todo.json");
     path
 }
