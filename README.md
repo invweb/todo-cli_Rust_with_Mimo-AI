@@ -7,6 +7,18 @@ A simple cross-platform command-line task manager written in Rust.
 - Works on macOS, Linux, and Windows
 - Simple and intuitive CLI interface
 - Persistent storage in `~/.todo.json`
+- Built-in GUI mode (egui)
+- i18n support (English / Russian)
+
+## Screenshots
+
+### CLI
+
+![CLI](screenshots/cli.png)
+
+### GUI
+
+![GUI](screenshots/gui.png)
 
 ## Commands
 
