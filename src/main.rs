@@ -4,6 +4,9 @@ use std::fs;
 use std::path::PathBuf;
 
 mod gui;
+mod i18n;
+
+use i18n::Localizer;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Task {
@@ -35,19 +38,9 @@ fn next_id(tasks: &[Task]) -> u32 {
     tasks.iter().map(|t| t.id).max().unwrap_or(0) + 1
 }
 
-fn print_usage() {
-    println!("Usage: todo <command> [arguments]");
-    println!();
-    println!("Commands:");
-    println!("  add <text>       — add a task");
-    println!("  list              — show all tasks");
-    println!("  done <id>         — mark task as done");
-    println!("  remove <id>       — remove a task");
-    println!("  gui               — launch graphical interface");
-}
-
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
+    let loc = Localizer::new();
 
     if args.is_empty() {
         gui::run_gui();
@@ -61,7 +54,7 @@ fn main() {
         "add" => {
             let title = args[1..].join(" ");
             if title.is_empty() {
-                eprintln!("specify task text");
+                eprintln!("{}", loc.translate("specify-task-text"));
                 return;
             }
             let mut tasks = load_tasks();
@@ -70,14 +63,17 @@ fn main() {
                 title,
                 done: false,
             };
-            println!("task #{} added: {}", task.id, task.title);
+            println!("{}", loc.translate_with_map("task-added", &std::collections::HashMap::from([
+                ("id".to_string(), task.id.to_string()),
+                ("title".to_string(), task.title.clone()),
+            ])));
             tasks.push(task);
             save_tasks(&tasks);
         }
         "list" => {
             let tasks = load_tasks();
             if tasks.is_empty() {
-                println!("task list is empty");
+                println!("{}", loc.translate("task-list-empty"));
                 return;
             }
             for t in &tasks {
@@ -89,7 +85,7 @@ fn main() {
             let id: u32 = match args.get(1).and_then(|s| s.parse().ok()) {
                 Some(id) => id,
                 None => {
-                    eprintln!("specify task ID");
+                    eprintln!("{}", loc.translate("specify-task-id"));
                     return;
                 }
             };
@@ -98,16 +94,20 @@ fn main() {
                 Some(t) => {
                     t.done = true;
                     save_tasks(&tasks);
-                    println!("task #{} completed", id);
+                    println!("{}", loc.translate_with_map("task-completed", &std::collections::HashMap::from([
+                        ("id".to_string(), id.to_string()),
+                    ])));
                 }
-                None => eprintln!("task #{} not found", id),
+                None => eprintln!("{}", loc.translate_with_map("task-not-found", &std::collections::HashMap::from([
+                    ("id".to_string(), id.to_string()),
+                ]))),
             }
         }
         "remove" => {
             let id: u32 = match args.get(1).and_then(|s| s.parse().ok()) {
                 Some(id) => id,
                 None => {
-                    eprintln!("specify task ID");
+                    eprintln!("{}", loc.translate("specify-task-id"));
                     return;
                 }
             };
@@ -116,14 +116,27 @@ fn main() {
             tasks.retain(|t| t.id != id);
             if tasks.len() < before {
                 save_tasks(&tasks);
-                println!("task #{} removed", id);
+                println!("{}", loc.translate_with_map("task-removed", &std::collections::HashMap::from([
+                    ("id".to_string(), id.to_string()),
+                ])));
             } else {
-                eprintln!("task #{} not found", id);
+                eprintln!("{}", loc.translate_with_map("task-not-found", &std::collections::HashMap::from([
+                    ("id".to_string(), id.to_string()),
+                ])));
             }
         }
         _ => {
-            eprintln!("unknown command: {}", args[0]);
-            print_usage();
+            eprintln!("{}", loc.translate_with_map("unknown-command", &std::collections::HashMap::from([
+                ("command".to_string(), args[0].clone()),
+            ])));
+            println!("{}", loc.translate("usage"));
+            println!();
+            println!("{}", loc.translate("commands"));
+            println!("{}", loc.translate("cmd-add"));
+            println!("{}", loc.translate("cmd-list"));
+            println!("{}", loc.translate("cmd-done"));
+            println!("{}", loc.translate("cmd-remove"));
+            println!("{}", loc.translate("cmd-gui"));
         }
     }
 }
