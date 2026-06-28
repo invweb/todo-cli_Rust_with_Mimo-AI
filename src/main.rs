@@ -3,6 +3,8 @@ use std::env;
 use std::fs;
 use std::path::PathBuf;
 
+mod gui;
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Task {
     id: u32,
@@ -41,17 +43,21 @@ fn print_usage() {
     println!("  list              — show all tasks");
     println!("  done <id>         — mark task as done");
     println!("  remove <id>       — remove a task");
+    println!("  gui               — launch graphical interface");
 }
 
 fn main() {
     let args: Vec<String> = env::args().skip(1).collect();
 
     if args.is_empty() {
-        print_usage();
+        gui::run_gui();
         return;
     }
 
     match args[0].as_str() {
+        "gui" => {
+            gui::run_gui();
+        }
         "add" => {
             let title = args[1..].join(" ");
             if title.is_empty() {
